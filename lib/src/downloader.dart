@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:archive/archive.dart';
 import 'package:http/http.dart' as http;
 import 'package:meta/meta.dart';
@@ -10,10 +11,7 @@ class RevisionInfo {
   final String folderPath;
   final int revision;
 
-  RevisionInfo(
-      {@required this.executablePath,
-      @required this.folderPath,
-      @required this.revision});
+  RevisionInfo({@required this.executablePath, @required this.folderPath, @required this.revision});
 }
 
 const int _lastRevision = 756035;
@@ -47,20 +45,19 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
     Process.runSync('chmod', ['+x', executableFile.absolute.path]);
   }
 
-  return RevisionInfo(
-      folderPath: revisionDirectory.path,
-      executablePath: executableFile.path,
-      revision: revision);
+  return RevisionInfo(folderPath: revisionDirectory.path, executablePath: executableFile.path, revision: revision);
 }
 
 Future _downloadFile(String url, String output) async {
+  var outputFile = File(output);
+  await outputFile.create(recursive: true);
+
   var client = http.Client();
   var response = await client.send(http.Request('get', Uri.parse(url)));
-  var ouputFile = File(output);
-  await response.stream.pipe(ouputFile.openWrite());
+  await response.stream.pipe(outputFile.openWrite());
   client.close();
 
-  if (!ouputFile.existsSync() || ouputFile.lengthSync() == 0) {
+  if (!outputFile.existsSync() || outputFile.lengthSync() == 0) {
     throw Exception('File was not downloaded from $url to $output');
   }
 }
@@ -106,8 +103,7 @@ String _downloadUrl(int revision) {
   } else if (Platform.isMacOS) {
     return '$_baseUrl/Mac/$revision/chrome-mac.zip';
   } else {
-    throw UnsupportedError(
-        "Can't download chrome for platform ${Platform.operatingSystem}");
+    throw UnsupportedError("Can't download chrome for platform ${Platform.operatingSystem}");
   }
 }
 
@@ -117,8 +113,7 @@ String getExecutablePath(String revisionPath) {
   } else if (Platform.isLinux) {
     return p.join(revisionPath, 'chrome-linux', 'chrome');
   } else if (Platform.isMacOS) {
-    return p.join(revisionPath, 'chrome-mac', 'Chromium.app', 'Contents',
-        'MacOS', 'Chromium');
+    return p.join(revisionPath, 'chrome-mac', 'Chromium.app', 'Contents', 'MacOS', 'Chromium');
   } else {
     throw UnsupportedError('Unknown platform ${Platform.operatingSystem}');
   }
