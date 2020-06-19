@@ -77,22 +77,14 @@ Future _unzip(String path, String targetPath) async {
 
     print('test1');
     await Process.run('ls', []).then((process) {
-      process.stderr.transform(utf8.decoder).listen((data) {
-        print('error: $data');
-      });
-      process.stdout.transform(utf8.decoder).listen((data) {
-        print('out: $data');
-      });
+      stdout.write(process.stdout);
+      stderr.write(process.stderr);
     });
 
     print('test2');
     await Process.run('unzip', [path, '-d', targetPath]).then((process) {
-      process.stderr.transform(utf8.decoder).listen((data) {
-        print('error: $data');
-      });
-      process.stdout.transform(utf8.decoder).listen((data) {
-        print('out: $data');
-      });
+      stdout.write(process.stdout);
+      stderr.write(process.stderr);
     });
     print('test3');
   } else {
