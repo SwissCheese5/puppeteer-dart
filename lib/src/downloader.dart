@@ -43,6 +43,7 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
   }
 
   if (!Platform.isWindows) {
+    print('test');
     await Process.run('ls', []).then((process) {
       process.stderr.transform(utf8.decoder).listen((data) {
         print('error: $data');
@@ -59,7 +60,7 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
         print('out: $data');
       });
     });
-    ;
+    print('test');
   }
 
   return RevisionInfo(folderPath: revisionDirectory.path, executablePath: executableFile.path, revision: revision);
