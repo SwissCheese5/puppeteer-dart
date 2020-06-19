@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
@@ -50,12 +50,22 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
 
 Future _downloadFile(String url, String output) async {
   var outputFile = File(output);
-  await outputFile.create(recursive: true);
+  // await outputFile.create(recursive: true);
+//
+  // var client = http.Client();
+  // var response = await client.send(http.Request('get', Uri.parse(url)));
+  // await response.stream.pipe(outputFile.openWrite());
+  // client.close();
 
-  var client = http.Client();
-  var response = await client.send(http.Request('get', Uri.parse(url)));
-  await response.stream.pipe(outputFile.openWrite());
-  client.close();
+  var response = await Dio().download(url, outputFile.absolute.path, onReceiveProgress: (int count, int total) {
+    if (total != -1) {
+      print('${(count / total * 100).toStringAsFixed(0)}%');
+    }
+  });
+
+  if (response.statusCode != 200) {
+    throw Exception('DIO ERROR: ${response.statusCode} ${response.statusMessage}');
+  }
 
   if (!outputFile.existsSync() || outputFile.lengthSync() == 0) {
     throw Exception('File was not downloaded from $url to $output');

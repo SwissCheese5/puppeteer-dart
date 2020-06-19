@@ -16,6 +16,7 @@ dependencies:
   path: '>=1.0.0 <2.0.0'
   petitparser: '>=2.2.0 <4.0.0'
   pool: ^1.4.0
+  dio: ^3.0.9
 
 dev_dependencies:
   analyzer:
