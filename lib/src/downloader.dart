@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
@@ -42,7 +43,23 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
   }
 
   if (!Platform.isWindows) {
-    Process.runSync('chmod', ['+x', executableFile.absolute.path]);
+    await Process.run('ls', []).then((process) {
+      process.stderr.transform(utf8.decoder).listen((data) {
+        print('error: $data');
+      });
+      process.stdout.transform(utf8.decoder).listen((data) {
+        print('out: $data');
+      });
+    });
+    await Process.run('chmod', ['+x', executableFile.absolute.path]).then((process) {
+      process.stderr.transform(utf8.decoder).listen((data) {
+        print('error: $data');
+      });
+      process.stdout.transform(utf8.decoder).listen((data) {
+        print('out: $data');
+      });
+    });
+    ;
   }
 
   return RevisionInfo(folderPath: revisionDirectory.path, executablePath: executableFile.path, revision: revision);
@@ -58,9 +75,7 @@ Future _downloadFile(String url, String output) async {
   // client.close();
 
   var response = await Dio().download(url, outputFile.absolute.path, onReceiveProgress: (int count, int total) {
-    if (total != -1) {
-      print('${(count / total * 100).toStringAsFixed(0)}%');
-    }
+    print('$count/$total');
   });
 
   if (response.statusCode != 200) {
