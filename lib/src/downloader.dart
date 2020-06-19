@@ -34,7 +34,7 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
     var url = _downloadUrl(revision);
     var zipPath = p.join(cachePath, '${revision}_${p.url.basename(url)}');
     await _downloadFile(url, zipPath);
-    _unzip(zipPath, revisionDirectory.path);
+    await _unzip(zipPath, revisionDirectory.path);
     File(zipPath).deleteSync();
   }
 
@@ -43,25 +43,7 @@ Future<RevisionInfo> downloadChrome({int revision, String cachePath}) async {
   }
 
   if (!Platform.isWindows) {
-    print('test1');
-    await Process.run('ls', []).then((process) {
-      process.stderr.transform(utf8.decoder).listen((data) {
-        print('error: $data');
-      });
-      process.stdout.transform(utf8.decoder).listen((data) {
-        print('out: $data');
-      });
-    });
-    print('test2');
-    await Process.run('chmod', ['+x', executableFile.absolute.path]).then((process) {
-      process.stderr.transform(utf8.decoder).listen((data) {
-        print('error: $data');
-      });
-      process.stdout.transform(utf8.decoder).listen((data) {
-        print('out: $data');
-      });
-    });
-    print('test3');
+    await Process.run('chmod', ['+x', executableFile.absolute.path]);
   }
 
   return RevisionInfo(folderPath: revisionDirectory.path, executablePath: executableFile.path, revision: revision);
@@ -89,10 +71,30 @@ Future _downloadFile(String url, String output) async {
   }
 }
 
-void _unzip(String path, String targetPath) {
+Future _unzip(String path, String targetPath) async {
   if (!Platform.isWindows) {
     // The _simpleUnzip doesn't support symlinks so we prefer a native command
-    Process.runSync('unzip', [path, '-d', targetPath]);
+
+    print('test1');
+    await Process.run('ls', []).then((process) {
+      process.stderr.transform(utf8.decoder).listen((data) {
+        print('error: $data');
+      });
+      process.stdout.transform(utf8.decoder).listen((data) {
+        print('out: $data');
+      });
+    });
+
+    print('test2');
+    await Process.run('unzip', [path, '-d', targetPath]).then((process) {
+      process.stderr.transform(utf8.decoder).listen((data) {
+        print('error: $data');
+      });
+      process.stdout.transform(utf8.decoder).listen((data) {
+        print('out: $data');
+      });
+    });
+    print('test3');
   } else {
     _simpleUnzip(path, targetPath);
   }
