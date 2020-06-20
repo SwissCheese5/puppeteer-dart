@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:archive/archive.dart';
@@ -76,11 +75,11 @@ Future _unzip(String path, String targetPath) async {
     // The _simpleUnzip doesn't support symlinks so we prefer a native command
 
     print('test1');
-    await Process.run('ls', []).then((process) {
-      stdout.write(process.stdout);
-      stderr.write(process.stderr);
-    });
-
+    print('PATH: $path');
+    print('TARGET PATH: $targetPath');
+    await for (var file in Directory(targetPath).list()) {
+      print('FILE: ${file.path}');
+    }
     print('test2');
     await Process.run('unzip', [path, '-d', targetPath]).then((process) {
       stdout.write(process.stdout);
